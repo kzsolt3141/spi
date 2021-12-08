@@ -1,11 +1,4 @@
-/*
- * adc.c
- *
- * Created: 1/18/2017 11:43:26 PM
- *  Author: Zsolt
- */ 
-
-#include "adc.h"
+#include "spi.h"
 
 #include <stddef.h>
 

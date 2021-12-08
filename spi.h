@@ -1,12 +1,5 @@
-/*
- * adc.h
- *
- * Created: 1/18/2017 11:43:26 PM
- *  Author: Zsolt
- */ 
-
-#ifndef ADC_TOOLS_H_
-#define ADC_TOOLS_H_
+#ifndef SPI_TOOLS_H_
+#define SPI_TOOLS_H_
 
 #include <stdint.h>
 
@@ -57,4 +50,4 @@ uint8_t ADC_pin_init(
  */
 uint16_t adc_single_run();
 
-#endif /* ADC_TOOLS_H_ */
+#endif /* SPI_TOOLS_H_ */
