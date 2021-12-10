@@ -2,7 +2,21 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
+#include "uart.h"
+
 int main(void) {
+    uint8_t sts = 0;
+
+    // UART INIT
+    //-------------------------------
+    const uint16_t baud_rate = 38400;
+
+    sts = USART_init(baud_rate, 0);
+    if (sts) return sts;
+
+    printf("Init Done UART baud: %u\n", (uint16_t)baud_rate);
+    //-------------------------------
+
     DDRB &= ((1 << PB5) |  // MOSI
              (1 << PB7) |  // SKC
              (1 << PB4));   // SS
@@ -19,5 +33,6 @@ int main(void) {
         SPDR = i;
         while(!(SPSR & (1<<SPIF)));
         PORTC = SPDR;
+        printf("r:%d, s:%d\n", PORTC, i);
     }
 }
