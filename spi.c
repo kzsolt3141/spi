@@ -5,57 +5,57 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-static ADC_isr_cb  ADC_cb_     = NULL;
-static void       *ADC_cb_ctx_ = NULL;
+static SPI_isr_cb  SPI_cb_     = NULL;
+static void       *SPI_cb_ctx_ = NULL;
 static uint8_t     isr_set_    = 0;
 
-void regiter_ADC_isr_cb(ADC_isr_cb cb, void* ctx) {
+void regiter_SPI_isr_cb(SPI_isr_cb cb, void* ctx) {
     if (cb) {
-        ADC_cb_ = cb;
+        SPI_cb_ = cb;
     } else {
         return;
     }
 
-    ADC_cb_ctx_ = ctx;
+    SPI_cb_ctx_ = ctx;
     isr_set_ = 1;
 }
 
-uint8_t ADC_pin_init(
-    uint8_t          pin,
-    ADC_clock_source clk_src,
-    uint8_t          en_free_run,
+uint8_t SPI_init(
+    SPI_clock_source clk_src,
+    uint8_t          master,
     uint8_t          en_isr
 ) {
     cli();
 
-    ADMUX  |= (0 << REFS1) |
-              (1 << REFS0) | // voltage ref = AVCC 
-              pin;               // select pin for ADC
-    ADCSRA |= (1 << ADEN) |  // enable ADC
-              (1 << ADSC) |  // start conversion
-              (en_free_run << ADFR) |   // free running mode
-              clk_src;
+    DDRB |= (1 << PB3) |  // MOSI
+            (1 << PB5) |  // SKC
+            (1 << PB2);   // SS
+    DDRB &= ~(1 << PB4);  //MISO
+
+    SPCR = (1 << SPE) |       // enable SPI
+           (master << MSTR);  // SPI mater mode
+
+    PORTB |= (1 << PB2);  // estabilish connection with slave wit SS
 
     if (en_isr) {
-        if (! isr_set_) return 1;
-        ADCSRA |= (1     << ADIE);   // enable ADC interrup
+        if (!isr_set_) return 1;
+        SPCR |= (1 << SPIE);  // SPI interrupt enable
     }
-
-    DDRC &= ~(1 << pin);         // set ADC pin as input
 
     sei();
 
     return 0;
 }
 
-uint16_t adc_single_run() {
-    ADCSRA |= (1 << ADSC);               // start a conversion
-    if (ADCSRA & (1 << ADIE)) return 0;  // value will be delivered in ISR
+uint8_t SPI_RW_byte(uint8_t data) {
+    PORTB &= ~(1 << PB2);  // slave select enable
+    SPDR = data;
+    while(!(SPSR & (1<<SPIF)));
+    PORTB |= (1 << PB2);   // disable slave select
 
-    while (ADCSRA & (1 << ADSC));  // wait for conversion to complete
-    return ADC;                    // Store ADC value
+    return SPDR;
 }
 
-ISR(ADC_vect) {
-    ADC_cb_(ADC_cb_ctx_);
+ISR(SPI_STC_vect) {
+    SPI_cb_(SPI_cb_ctx_);
 }
