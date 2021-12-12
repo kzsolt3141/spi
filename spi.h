@@ -47,8 +47,14 @@ uint8_t SPI_init(
  * Send one byte over SPI and wait until transmission is finished
  * @param [in] data  data to be sent over spi
  *
- * @return receiver byte
+ * @return received byte
  */
 uint8_t SPI_RW_byte(uint8_t data);
+
+/**
+ * Send one byte over SPI and don't wait
+ * @param [in] data  data to be sent over spi
+ */
+void SPI_W_byte_nowait(uint8_t data);
 
 #endif /* SPI_TOOLS_H_ */

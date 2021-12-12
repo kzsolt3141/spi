@@ -13,6 +13,24 @@
 #include "uart.h"
 
 
+/**
+ * SPI data tranfere complete interrupt
+ */
+typedef struct SPI_cb_ctx_t {
+    uint8_t data;
+    int intr_cnt;
+}SPI_cb_ctx;
+
+static void SPI_cb_handle(void* ctx) {
+    SPI_cb_ctx* t_ctx = (struct SPI_cb_ctx*)ctx;
+
+    PORTB |= (1 << PB2);   // disable slave select
+
+    t_ctx->data = SPDR;
+    t_ctx->intr_cnt++;
+}
+
+
 int main(void) {
     uint8_t sts = 0;
 

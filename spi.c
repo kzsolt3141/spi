@@ -5,6 +5,19 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
+#ifdef __AVR_ATmega8__
+    #define SS   PB2
+    #define MOSI PB3
+    #define MISO PB4
+    #define SCK  PB5
+#endif
+#ifdef __AVR_ATmega16__
+    #define SS   PB4
+    #define MOSI PB5
+    #define MISO PB6
+    #define SCK  PB7
+#endif
+
 static SPI_isr_cb  SPI_cb_     = NULL;
 static void       *SPI_cb_ctx_ = NULL;
 static uint8_t     isr_set_    = 0;
@@ -27,15 +40,15 @@ uint8_t SPI_init(
 ) {
     cli();
 
-    DDRB |= (1 << PB3) |  // MOSI
-            (1 << PB5) |  // SKC
-            (1 << PB2);   // SS
-    DDRB &= ~(1 << PB4);  //MISO
+    DDRB |= (1 << MOSI) |  // MOSI
+            (1 << SCK) |  // SKC
+            (1 << SS);   // SS
+    DDRB &= ~(1 << MISO);  //MISO
 
     SPCR = (1 << SPE) |       // enable SPI
            (master << MSTR);  // SPI mater mode
 
-    PORTB |= (1 << PB2);  // estabilish connection with slave wit SS
+    PORTB |= (1 << SS);  // estabilish connection with slave wit SS
 
     if (en_isr) {
         if (!isr_set_) return 1;
@@ -48,13 +61,19 @@ uint8_t SPI_init(
 }
 
 uint8_t SPI_RW_byte(uint8_t data) {
-    PORTB &= ~(1 << PB2);  // slave select enable
+    PORTB &= ~(1 << SS);  // slave select enable
     SPDR = data;
     while(!(SPSR & (1<<SPIF)));
-    PORTB |= (1 << PB2);   // disable slave select
+    PORTB |= (1 << SS);   // disable slave select
 
     return SPDR;
 }
+
+void SPI_W_byte_nowait(uint8_t data) {
+    PORTB &= ~(1 << SS);  // slave select enable
+    SPDR = data;
+}
+
 
 ISR(SPI_STC_vect) {
     SPI_cb_(SPI_cb_ctx_);
