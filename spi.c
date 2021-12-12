@@ -33,9 +33,8 @@ void regiter_SPI_isr_cb(SPI_isr_cb cb, void* ctx) {
     isr_set_ = 1;
 }
 
-uint8_t SPI_init(
+uint8_t SPI_init_master(
     SPI_clock_source clk_src,
-    uint8_t          master,
     uint8_t          en_isr
 ) {
     cli();
@@ -46,9 +45,33 @@ uint8_t SPI_init(
     DDRB &= ~(1 << MISO);  //MISO
 
     SPCR = (1 << SPE) |       // enable SPI
-           (master << MSTR);  // SPI mater mode
+           (1 << MSTR);  // SPI mater mode
 
     PORTB |= (1 << SS);  // estabilish connection with slave wit SS
+
+    if (en_isr) {
+        if (!isr_set_) return 1;
+        SPCR |= (1 << SPIE);  // SPI interrupt enable
+    }
+
+    sei();
+
+    return 0;
+}
+
+uint8_t SPI_init_slave(
+    SPI_clock_source clk_src,
+    uint8_t          en_isr
+) {
+    cli();
+
+    DDRB &= ~((1 << MOSI) |  // MOSI
+              (1 << SCK) |  // SKC
+              (1 << SS));   // SS
+    DDRB |= (1 << MISO);  //MISO
+
+    SPCR = (1 << SPE) |       // enable SPI
+           (0 << MSTR);  // SPI slave mode
 
     if (en_isr) {
         if (!isr_set_) return 1;

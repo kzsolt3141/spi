@@ -29,17 +29,28 @@ typedef void (*SPI_isr_cb)(void* ctx);
 void regiter_SPI_isr_cb(SPI_isr_cb cb, void* ctx);
 
 /**
- * Initialize SPI
- * @param [in] clk_src  select clock prescaler, see ADC_clock_source_t
- * @param [in] master   master/slave
+ * Initialize SPI as master device
+ * @param [in] clk_src  select clock prescaler, see SPI_clock_source
  * @param [in] en_isr   enable data ready interrupt
  *
  * @return 0 for success
  *         other in case of fail
  */
-uint8_t SPI_init(
+uint8_t SPI_init_master(
     SPI_clock_source clk_src,
-    uint8_t          master,
+    uint8_t          en_isr
+);
+
+/**
+ * Initialize SPI as slave device
+ * @param [in] clk_src  select clock prescaler, see SPI_clock_source
+ * @param [in] en_isr   enable data ready interrupt
+ *
+ * @return 0 for success
+ *         other in case of fail
+ */
+uint8_t SPI_init_slave(
+    SPI_clock_source clk_src,
     uint8_t          en_isr
 );
 

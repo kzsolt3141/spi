@@ -22,7 +22,7 @@ typedef struct SPI_cb_ctx_t {
 }SPI_cb_ctx;
 
 static void SPI_cb_handle(void* ctx) {
-    SPI_cb_ctx* t_ctx = (struct SPI_cb_ctx*)ctx;
+    SPI_cb_ctx* t_ctx = (SPI_cb_ctx*)ctx;
 
     PORTB |= (1 << PB2);   // disable slave select
 
@@ -46,17 +46,20 @@ int main(void) {
 
     // SPI INIT
     //-------------------------------
-    sts = SPI_init(SPI_PS_8, 1, 0);
+    SPI_cb_ctx spi_ctx = {};
+    regiter_SPI_isr_cb(SPI_cb_handle, &spi_ctx);
+    sts = SPI_init_master(SPI_PS_8, 1);
     if (sts) return sts;
 
     printf("Init Done SPI\n");
 
 uint8_t cnt = 0;
     while (1) {
-        uint8_t d = SPI_RW_byte(cnt);
-        printf("test s:%d r%d\n", cnt, d);
+        SPI_W_byte_nowait(cnt);
+        printf("master s:%d r%d, icnt:%d\n", cnt, spi_ctx.data, spi_ctx.intr_cnt);
         _delay_ms(1000);
         cnt++;
     }
+
     return 0;
 }
