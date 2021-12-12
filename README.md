@@ -1,2 +1,3 @@
-# spi
-SPI communication between ATMEGA8 and ATMEGA16
+1.0.0 (2021.12.12)
+---------------------
+Initial version, spi master and slave with interrupt and simple RW
