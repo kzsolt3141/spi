@@ -20,22 +20,14 @@
 
 static SPI_isr_cb  SPI_cb_     = NULL;
 static void       *SPI_cb_ctx_ = NULL;
-static uint8_t     isr_set_    = 0;
 
 void regiter_SPI_isr_cb(SPI_isr_cb cb, void* ctx) {
-    if (cb) {
-        SPI_cb_ = cb;
-    } else {
-        return;
-    }
-
+    SPI_cb_ = cb;
     SPI_cb_ctx_ = ctx;
-    isr_set_ = 1;
 }
 
-uint8_t SPI_init_master(
-    SPI_clock_source clk_src,
-    uint8_t          en_isr
+void SPI_init_master(
+    SPI_clock_source clk_src
 ) {
     cli();
 
@@ -49,19 +41,15 @@ uint8_t SPI_init_master(
 
     PORTB |= (1 << SS);  // estabilish connection with slave wit SS
 
-    if (en_isr) {
-        if (!isr_set_) return 1;
+    if (SPI_cb_) {
         SPCR |= (1 << SPIE);  // SPI interrupt enable
     }
 
     sei();
-
-    return 0;
 }
 
-uint8_t SPI_init_slave(
-    SPI_clock_source clk_src,
-    uint8_t          en_isr
+void SPI_init_slave(
+    SPI_clock_source clk_src
 ) {
     cli();
 
@@ -73,14 +61,11 @@ uint8_t SPI_init_slave(
     SPCR = (1 << SPE) |       // enable SPI
            (0 << MSTR);  // SPI slave mode
 
-    if (en_isr) {
-        if (!isr_set_) return 1;
+    if (SPI_cb_) {
         SPCR |= (1 << SPIE);  // SPI interrupt enable
     }
 
     sei();
-
-    return 0;
 }
 
 uint8_t SPI_RW_byte(uint8_t data) {
@@ -96,7 +81,6 @@ void SPI_W_byte_nowait(uint8_t data) {
     PORTB &= ~(1 << SS);  // slave select enable
     SPDR = data;
 }
-
 
 ISR(SPI_STC_vect) {
     SPI_cb_(SPI_cb_ctx_);

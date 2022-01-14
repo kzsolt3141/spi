@@ -34,14 +34,11 @@ static void SPI_cb_handle(void* ctx) {
 
 
 int main(void) {
-    uint8_t sts = 0;
-
     // UART INIT
     //-------------------------------
     const uint16_t baud_rate = 38400;
 
-    sts = USART_init(baud_rate, 0);
-    if (sts) return sts;
+    USART_init(baud_rate);
 
     printf("Init Done UART baud: %u\n", (uint16_t)baud_rate);
     //-------------------------------
@@ -52,8 +49,7 @@ int main(void) {
 
     regiter_SPI_isr_cb(SPI_cb_handle, &spi_ctx);
 
-    sts = SPI_init_slave(SPI_PS_8, 1);
-    if (sts) return sts;
+    SPI_init_slave(SPI_PS_8);
 
     printf("Init Done SPI\n");
 

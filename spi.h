@@ -29,29 +29,19 @@ typedef void (*SPI_isr_cb)(void* ctx);
 void regiter_SPI_isr_cb(SPI_isr_cb cb, void* ctx);
 
 /**
- * Initialize SPI as master device
+ * Initialize SPI as master device. ISR callback must be set befor init.
  * @param [in] clk_src  select clock prescaler, see SPI_clock_source
- * @param [in] en_isr   enable data ready interrupt
- *
- * @return 0 for success
- *         other in case of fail
  */
-uint8_t SPI_init_master(
-    SPI_clock_source clk_src,
-    uint8_t          en_isr
+void SPI_init_master(
+    SPI_clock_source clk_src
 );
 
 /**
- * Initialize SPI as slave device
+ * Initialize SPI as slave device. ISR callback must be set befor init.
  * @param [in] clk_src  select clock prescaler, see SPI_clock_source
- * @param [in] en_isr   enable data ready interrupt
- *
- * @return 0 for success
- *         other in case of fail
  */
-uint8_t SPI_init_slave(
-    SPI_clock_source clk_src,
-    uint8_t          en_isr
+void SPI_init_slave(
+    SPI_clock_source clk_src
 );
 
 /**
