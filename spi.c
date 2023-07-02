@@ -37,7 +37,11 @@ void SPI_init_master(
     DDRB &= ~(1 << MISO);  //MISO
 
     SPCR = (1 << SPE) |       // enable SPI
-           (1 << MSTR);  // SPI mater mode
+           (1 << MSTR) |      // SPI mater mode
+           (clk_src & 0x03);  // set clock prescaler
+
+    SPSR = (clk_src >> 2) & 0x01;  // enable double SPI clock
+
 
     PORTB |= (1 << SS);  // estabilish connection with slave wit SS
 
@@ -59,7 +63,10 @@ void SPI_init_slave(
     DDRB |= (1 << MISO);  //MISO
 
     SPCR = (1 << SPE) |       // enable SPI
-           (0 << MSTR);  // SPI slave mode
+           (0 << MSTR) |      // SPI slave mode
+           (clk_src & 0x03);  // set clock prescaler
+
+    SPSR = (clk_src >> 2) & 0x01;  // enable double SPI clock
 
     if (SPI_cb_) {
         SPCR |= (1 << SPIE);  // SPI interrupt enable

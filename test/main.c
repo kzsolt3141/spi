@@ -45,7 +45,7 @@ int main(void) {
     //-------------------------------
     SPI_cb_ctx spi_ctx = {};
     regiter_SPI_isr_cb(SPI_cb_handle, &spi_ctx);
-    SPI_init_master(SPI_PS_8);
+    SPI_init_master(SPI_PS_4);
 
     printf("Init Done SPI\n");
 

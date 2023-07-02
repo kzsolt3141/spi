@@ -49,7 +49,7 @@ int main(void) {
 
     regiter_SPI_isr_cb(SPI_cb_handle, &spi_ctx);
 
-    SPI_init_slave(SPI_PS_8);
+    SPI_init_slave(SPI_PS_4);
 
     printf("Init Done SPI\n");
 
